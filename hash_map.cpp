@@ -6,8 +6,9 @@
 template<class KeyType, class ValueType, class Hash = std::hash<KeyType> >
 class HashMap {
  public:
-    typedef typename std::list<std::pair<const KeyType, ValueType> >::iterator iterator;
-    typedef typename std::list<std::pair<const KeyType, ValueType> >::const_iterator const_iterator;
+    typedef std::pair<const KeyType, ValueType> Item;
+    typedef typename std::list<Item>::iterator iterator;
+    typedef typename std::list<Item>::const_iterator const_iterator;
 
     HashMap(Hash hash = Hash())
           : hash(hash),
@@ -25,7 +26,7 @@ class HashMap {
         }
     }
 
-    HashMap(std::initializer_list<std::pair<const KeyType, ValueType> > init, Hash hash = Hash())
+    HashMap(std::initializer_list<Item> init, Hash hash = Hash())
           : hash(hash),
             pointers(INITIAL_SIZE),
             states(INITIAL_SIZE, STATE_EMPTY) {
@@ -54,7 +55,7 @@ class HashMap {
         return *this;
     }
 
-    void insert(std::pair<KeyType, ValueType>&& pair);
+    void insert(Item);
 
     ValueType& operator[] (const KeyType& key);
 
@@ -87,8 +88,8 @@ class HashMap {
     const char STATE_ERASED = 2;
 
     Hash hash;
-    std::vector<typename std::list<std::pair<const KeyType, ValueType> >::iterator> pointers;
-    std::list<std::pair<const KeyType, ValueType> > values;
+    std::vector<typename std::list<Item>::iterator> pointers;
+    std::list<Item> values;
     std::vector<char> states;
     size_t occupancy = 0;
 
@@ -97,7 +98,7 @@ class HashMap {
 
 
 template<class KeyType, class ValueType, class Hash>
-void HashMap<KeyType, ValueType, Hash>::insert(std::pair<KeyType, ValueType>&& pair) {
+void HashMap<KeyType, ValueType, Hash>::insert(Item pair) {
     check_size();
     size_t position = hash(pair.first) % pointers.size();
     while (states[position] == STATE_FILLED) {
@@ -218,7 +219,7 @@ template<class KeyType, class ValueType, class Hash>
 void HashMap<KeyType, ValueType, Hash>::check_size() {
     if (occupancy * OCCUPANCY_COEFFICIENT >= pointers.size()) {
         try {
-            std::vector<typename std::list<std::pair<const KeyType, ValueType> >::iterator> new_pointers(pointers.size() * 2);
+            std::vector<typename std::list<Item>::iterator> new_pointers(pointers.size() * 2);
             states.assign(new_pointers.size(), STATE_EMPTY);
             for (auto it = begin(); it != end(); ++it) {
                 size_t position = hash(it->first) % new_pointers.size();
