@@ -278,7 +278,7 @@ struct Node {
     Node* right = nullptr;
     Node* parent = nullptr;
     ValueType value;
-    int height = 0;
+    size_t height = 0;
 
     Node() {}
     Node(ValueType value) : value(value), height(1) {}
@@ -294,7 +294,7 @@ struct Node {
     }
 
     int get_balance() const {
-        return (left == nullptr ? 0 : left->height) - (right == nullptr ? 0 : right->height);
+        return (left == nullptr ? 0 : (int)left->height) - (right == nullptr ? 0 : right->height);
     }
 
     bool equal(ValueType& val) const {
